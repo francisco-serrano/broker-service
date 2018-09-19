@@ -1,10 +1,7 @@
 package trabajogrado.broker.neuralnetwork;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
@@ -31,5 +28,15 @@ public class NeuralNetworkController {
             @RequestParam("cantidad_mensajes") int cantidadMensajes
     ) {
         return neuralNetworkService.clasificarTakeout(zipFile, cantidadMensajes);
+    }
+
+    @GetMapping(value = "/neuralnetwork/clasificar_lotr")
+    public String clasificarLotr(
+            @RequestParam("db_uri") String dbUri,
+            @RequestParam("db_name") String dbName,
+            @RequestParam("cantidad_chats") int cantidadChats,
+            @RequestParam("cantidad_mensajes") int cantidadMensajes
+    ) {
+        return neuralNetworkService.clasificarLotr(dbUri, dbName, cantidadChats, cantidadMensajes);
     }
 }

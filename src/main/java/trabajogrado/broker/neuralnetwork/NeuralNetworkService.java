@@ -13,8 +13,10 @@ import java.io.*;
 public class NeuralNetworkService {
 
     private static String URL_CLASIFICAR_LOTE = "http://%s:%s/clasificar_csv?cantidad_mensajes=%s";
+
     private static String URL_GENERAR_CSV_ARFF = "http://%s:%s/obtener_arff_csv";
     private static String URL_GENERAR_CSV_TAKEOUT = "http://%s:%s/obtener_takeout_csv";
+    private static String URL_GENERAR_CSV_LOTR = "http://%s:%s/obtener_lotr_csv?db_uri=%s&db_name=%s&cantidad_chats=%s";
 
     private MicroservicesConfiguration configuration;
 
@@ -24,8 +26,10 @@ public class NeuralNetworkService {
     }
 
     public String clasificarArff(MultipartFile zipFile, int cantidadMensajes) {
-
-        String urlConversionFormato = String.format(URL_GENERAR_CSV_ARFF, configuration.getPooAddress(), configuration.getPooPort());
+        String urlConversionCsv = String.format(URL_GENERAR_CSV_ARFF,
+                configuration.getPooAddress(),
+                configuration.getPooPort()
+        );
 
         String response = null;
 
@@ -35,7 +39,7 @@ public class NeuralNetworkService {
             bos.write(zipFile.getBytes());
             bos.close();
 
-            response = Unirest.post(urlConversionFormato)
+            response = Unirest.post(urlConversionCsv)
                     .field("zipFile", zipFileTemp)
                     .asString().getBody();
 
@@ -52,7 +56,10 @@ public class NeuralNetworkService {
     }
 
     public String clasificarTakeout(MultipartFile zipFile, int cantidadMensajes) {
-        String url = String.format(URL_GENERAR_CSV_TAKEOUT, configuration.getPooAddress(), configuration.getPooPort());
+        String urlConversionCsv = String.format(URL_GENERAR_CSV_TAKEOUT,
+                configuration.getPooAddress(),
+                configuration.getPooPort()
+        );
 
         String response = null;
 
@@ -62,13 +69,38 @@ public class NeuralNetworkService {
             bos.write(zipFile.getBytes());
             bos.close();
 
-            response = Unirest.post(url)
+            response = Unirest.post(urlConversionCsv)
                     .field("zipFile", zipFileTemp)
                     .asString().getBody();
 
             if (zipFileTemp.delete())
                 System.out.println("zipFileTemp eliminadooo");
         } catch (UnirestException | IOException e) {
+            e.printStackTrace();
+        }
+
+        assert response != null;
+
+        return classifyCsv(response, cantidadMensajes);
+    }
+
+    public String clasificarLotr(String dbUri, String dbName, int cantidadChats, int cantidadMensajes) {
+        String urlConversionCsv = String.format(URL_GENERAR_CSV_LOTR,
+                configuration.getPooAddress(),
+                configuration.getPooPort(),
+                dbUri,
+                dbName,
+                cantidadChats
+        );
+
+        Unirest.setTimeouts(20000 * cantidadChats, 60000 * cantidadChats);
+
+        String response = null;
+
+        try {
+            response = Unirest.get(urlConversionCsv)
+                    .asString().getBody();
+        } catch (UnirestException e) {
             e.printStackTrace();
         }
 
