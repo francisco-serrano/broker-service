@@ -48,33 +48,13 @@ public class NeuralNetworkService {
 
         assert response != null;
 
-        String urlClasificacion = String.format(URL_CLASIFICAR_LOTE, configuration.getNnAddress(), configuration.getNnPort(), cantidadMensajes);
-
-        Unirest.setTimeouts(1000 * cantidadMensajes, 2000 * cantidadMensajes);
-
-        try {
-            File csvFileTemp = new File("/tmp/file.csv");
-            FileWriter writer = new FileWriter(csvFileTemp);
-            writer.write(response);
-            writer.close();
-
-            response = Unirest.post(urlClasificacion)
-                    .field("csv_file", csvFileTemp)
-                    .asString().getBody();
-
-            if (csvFileTemp.delete())
-                System.out.println("zipFileTemp eliminadooooo");
-
-            return response;
-        } catch (UnirestException | IOException e) {
-            e.printStackTrace();
-        }
-
-        throw new RuntimeException("clasificarArff: Error en la comunicación con el microservicio");
+        return classifyCsv(response, cantidadMensajes);
     }
 
-    public String clasificarTakeout(MultipartFile zipFile) {
+    public String clasificarTakeout(MultipartFile zipFile, int cantidadMensajes) {
         String url = String.format(URL_GENERAR_CSV_TAKEOUT, configuration.getPooAddress(), configuration.getPooPort());
+
+        String response = null;
 
         try {
             File zipFileTemp = new File("/tmp/file.zip");
@@ -82,18 +62,44 @@ public class NeuralNetworkService {
             bos.write(zipFile.getBytes());
             bos.close();
 
-            String response = Unirest.post(url)
+            response = Unirest.post(url)
                     .field("zipFile", zipFileTemp)
                     .asString().getBody();
 
             if (zipFileTemp.delete())
                 System.out.println("zipFileTemp eliminadooo");
-
-            return response;
         } catch (UnirestException | IOException e) {
             e.printStackTrace();
         }
 
-        throw new RuntimeException("clasificarTakeout: Error en la comunicación con el microservicio");
+        assert response != null;
+
+        return classifyCsv(response, cantidadMensajes);
+    }
+
+    private String classifyCsv(String csvContent, int cantidadMensajes) {
+        String urlClasificacion = String.format(URL_CLASIFICAR_LOTE, configuration.getNnAddress(), configuration.getNnPort(), cantidadMensajes);
+
+        Unirest.setTimeouts(1000 * cantidadMensajes, 2000 * cantidadMensajes);
+
+        try {
+            File csvFileTemp = new File("/tmp/file.csv");
+            FileWriter writer = new FileWriter(csvFileTemp);
+            writer.write(csvContent);
+            writer.close();
+
+            csvContent = Unirest.post(urlClasificacion)
+                    .field("csv_file", csvFileTemp)
+                    .asString().getBody();
+
+            if (csvFileTemp.delete())
+                System.out.println("csvFileTemp eliminadooooo");
+
+            return csvContent;
+        } catch (UnirestException | IOException e) {
+            e.printStackTrace();
+        }
+
+        throw new RuntimeException("classifyCsv: Error en la comunicación con el microservicio");
     }
 }

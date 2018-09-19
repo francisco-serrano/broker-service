@@ -26,7 +26,10 @@ public class NeuralNetworkController {
     }
 
     @PostMapping(value = "/neuralnetwork/clasificar_takeout")
-    public String clasificarTakeout(@RequestBody MultipartFile zipFile) {
-        return neuralNetworkService.clasificarTakeout(zipFile);
+    public String clasificarTakeout(
+            @RequestBody MultipartFile zipFile,
+            @RequestParam("cantidad_mensajes") int cantidadMensajes
+    ) {
+        return neuralNetworkService.clasificarTakeout(zipFile, cantidadMensajes);
     }
 }
