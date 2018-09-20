@@ -18,6 +18,9 @@ public class NeuralNetworkService {
     private static String URL_GENERAR_CSV_TAKEOUT = "http://%s:%s/obtener_takeout_csv";
     private static String URL_GENERAR_CSV_LOTR = "http://%s:%s/obtener_lotr_csv?db_uri=%s&db_name=%s&cantidad_chats=%s";
 
+    private static String URL_GENERAR_PERFILES_JSON = "http://%s:%s/generar_perfiles_json?comes_from_json=%s";
+    private static String URL_GENERAR_PERFILES_TSV = "http://%s:%s/generar_perfiles_tsv";
+
     private MicroservicesConfiguration configuration;
 
     @Autowired
@@ -25,7 +28,7 @@ public class NeuralNetworkService {
         this.configuration = configuration;
     }
 
-    public String clasificarArff(MultipartFile zipFile, int cantidadMensajes) {
+    public String clasificarArff(MultipartFile zipFile, int cantidadMensajes, boolean mostrarTsv) {
         String urlConversionCsv = String.format(URL_GENERAR_CSV_ARFF,
                 configuration.getPooAddress(),
                 configuration.getPooPort()
@@ -44,7 +47,7 @@ public class NeuralNetworkService {
                     .asString().getBody();
 
             if (zipFileTemp.delete())
-                System.out.println("zipFileTemp eliminadooooo");
+                System.out.println("zipFileTemp eliminado");
 
         } catch (UnirestException | IOException e) {
             e.printStackTrace();
@@ -52,10 +55,14 @@ public class NeuralNetworkService {
 
         assert response != null;
 
-        return classifyCsv(response, cantidadMensajes);
+        response = classifyCsv(response, cantidadMensajes);
+
+        assert response != null;
+
+        return generateProfiles(response, mostrarTsv);
     }
 
-    public String clasificarTakeout(MultipartFile zipFile, int cantidadMensajes) {
+    public String clasificarTakeout(MultipartFile zipFile, int cantidadMensajes, boolean mostrarTsv) {
         String urlConversionCsv = String.format(URL_GENERAR_CSV_TAKEOUT,
                 configuration.getPooAddress(),
                 configuration.getPooPort()
@@ -81,10 +88,14 @@ public class NeuralNetworkService {
 
         assert response != null;
 
-        return classifyCsv(response, cantidadMensajes);
+        response = classifyCsv(response, cantidadMensajes);
+
+        assert response != null;
+
+        return generateProfiles(response, mostrarTsv);
     }
 
-    public String clasificarLotr(String dbUri, String dbName, int cantidadChats, int cantidadMensajes) {
+    public String clasificarLotr(String dbUri, String dbName, int cantidadChats, int cantidadMensajes, boolean mostrarTsv) {
         String urlConversionCsv = String.format(URL_GENERAR_CSV_LOTR,
                 configuration.getPooAddress(),
                 configuration.getPooPort(),
@@ -93,7 +104,7 @@ public class NeuralNetworkService {
                 cantidadChats
         );
 
-        Unirest.setTimeouts(20000 * cantidadChats, 60000 * cantidadChats);
+        Unirest.setTimeouts(60000 * cantidadChats, 120000 * cantidadChats);
 
         String response = null;
 
@@ -106,7 +117,11 @@ public class NeuralNetworkService {
 
         assert response != null;
 
-        return classifyCsv(response, cantidadMensajes);
+        response = classifyCsv(response, cantidadMensajes);
+
+        assert response != null;
+
+        return generateProfiles(response, mostrarTsv);
     }
 
     private String classifyCsv(String csvContent, int cantidadMensajes) {
@@ -125,7 +140,7 @@ public class NeuralNetworkService {
                     .asString().getBody();
 
             if (csvFileTemp.delete())
-                System.out.println("csvFileTemp eliminadooooo");
+                System.out.println("csvFileTemp eliminado");
 
             return csvContent;
         } catch (UnirestException | IOException e) {
@@ -133,5 +148,39 @@ public class NeuralNetworkService {
         }
 
         throw new RuntimeException("classifyCsv: Error en la comunicación con el microservicio");
+    }
+
+    private String generateProfiles(String classifiedCsv, boolean mostrarTsv) {
+        String urlGeneracionPerfil = mostrarTsv ?
+                String.format(
+                        URL_GENERAR_PERFILES_TSV,
+                        configuration.getPooAddress(),
+                        configuration.getPooPort()
+                ) :
+                String.format(
+                        URL_GENERAR_PERFILES_JSON,
+                        configuration.getPooAddress(),
+                        configuration.getPooPort(),
+                        mostrarTsv
+                );
+
+        try {
+            File csvFileTempPerfiles = new File("/tmp/file.csv");
+            FileOutputStream fos = new FileOutputStream(csvFileTempPerfiles);
+            fos.write(classifiedCsv.getBytes());
+
+            classifiedCsv = Unirest.post(urlGeneracionPerfil)
+                    .field("csvFile", csvFileTempPerfiles)
+                    .asString().getBody();
+
+            if (csvFileTempPerfiles.delete())
+                System.out.println("csvFileTempPerfiles eliminado");
+
+            return classifiedCsv;
+        } catch (UnirestException | IOException e) {
+            e.printStackTrace();
+        }
+
+        throw new RuntimeException("clasificarArff: Error en la generación de perfiles");
     }
 }

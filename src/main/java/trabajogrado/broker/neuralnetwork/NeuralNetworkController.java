@@ -17,17 +17,19 @@ public class NeuralNetworkController {
     @PostMapping(value = "/neuralnetwork/clasificar_arff")
     public String clasificarArff(
             @RequestBody MultipartFile zipFile,
-            @RequestParam("cantidad_mensajes") int cantidadMensajes
+            @RequestParam("cantidad_mensajes") int cantidadMensajes,
+            @RequestParam(value = "mostrar_tsv", required = false) boolean mostrarTsv
     ) {
-        return neuralNetworkService.clasificarArff(zipFile, cantidadMensajes);
+        return neuralNetworkService.clasificarArff(zipFile, cantidadMensajes, mostrarTsv);
     }
 
     @PostMapping(value = "/neuralnetwork/clasificar_takeout")
     public String clasificarTakeout(
             @RequestBody MultipartFile zipFile,
-            @RequestParam("cantidad_mensajes") int cantidadMensajes
+            @RequestParam("cantidad_mensajes") int cantidadMensajes,
+            @RequestParam(value = "mostrar_tsv", required = false) boolean mostrarTsv
     ) {
-        return neuralNetworkService.clasificarTakeout(zipFile, cantidadMensajes);
+        return neuralNetworkService.clasificarTakeout(zipFile, cantidadMensajes, mostrarTsv);
     }
 
     @GetMapping(value = "/neuralnetwork/clasificar_lotr")
@@ -35,8 +37,9 @@ public class NeuralNetworkController {
             @RequestParam("db_uri") String dbUri,
             @RequestParam("db_name") String dbName,
             @RequestParam("cantidad_chats") int cantidadChats,
-            @RequestParam("cantidad_mensajes") int cantidadMensajes
+            @RequestParam("cantidad_mensajes") int cantidadMensajes,
+            @RequestParam(value = "mostrar_tsv", required = false) boolean mostrarTsv
     ) {
-        return neuralNetworkService.clasificarLotr(dbUri, dbName, cantidadChats, cantidadMensajes);
+        return neuralNetworkService.clasificarLotr(dbUri, dbName, cantidadChats, cantidadMensajes, mostrarTsv);
     }
 }
