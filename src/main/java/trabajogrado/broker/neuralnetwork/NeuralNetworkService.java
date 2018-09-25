@@ -104,7 +104,7 @@ public class NeuralNetworkService {
                 cantidadChats
         );
 
-        Unirest.setTimeouts(60000 * cantidadChats, 120000 * cantidadChats);
+        Unirest.setTimeouts(120000 * cantidadChats, 240000 * cantidadChats);
 
         String response = null;
 

@@ -20,11 +20,28 @@ public class ResultsService {
 
     private static final String ADD_CONV_URL = "http://%s:%s/{tablename}";
 
+    private static final String GET_TABLES_URL = "http://%s:%s/tables";
+
     private MicroservicesConfiguration configuration;
 
     @Autowired
     public ResultsService(MicroservicesConfiguration configuration) {
         this.configuration = configuration;
+    }
+
+    public String getTables() {
+        String url = String.format(GET_TABLES_URL,
+                configuration.getResultsAddress(),
+                configuration.getResultsPort()
+        );
+
+        try {
+            return Unirest.get(url).asString().getBody();
+        } catch (UnirestException e) {
+            e.printStackTrace();
+        }
+
+        throw new RuntimeException("getTables: Error en la comunicación con el servicio de resultados");
     }
 
     public String getAllUsers(String table) {
