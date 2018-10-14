@@ -2,7 +2,11 @@ package trabajogrado.broker.results;
 
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
+import org.apache.catalina.core.ApplicationContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.DefaultApplicationArguments;
+import org.springframework.boot.SpringApplication;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import trabajogrado.broker.configuration.MicroservicesConfiguration;
@@ -23,17 +27,18 @@ public class ResultsService {
     private static final String GET_TABLES_URL = "http://%s:%s/tables";
 
     private MicroservicesConfiguration configuration;
+    private String address;
+    private int port;
 
     @Autowired
     public ResultsService(MicroservicesConfiguration configuration) {
         this.configuration = configuration;
+        this.address = configuration.dockerized() ? configuration.getResultsAddressDocker() : configuration.getResultsAddress();
+        this.port = configuration.getResultsPort();
     }
 
     public String getTables() {
-        String url = String.format(GET_TABLES_URL,
-                configuration.getResultsAddress(),
-                configuration.getResultsPort()
-        );
+        String url = String.format(GET_TABLES_URL, address, port);
 
         try {
             return Unirest.get(url).asString().getBody();
@@ -45,11 +50,13 @@ public class ResultsService {
     }
 
     public String getAllUsers(String table) {
-        String url = String.format(GET_ALL_USERS_URL,
-                configuration.getResultsAddress(),
-                configuration.getResultsPort(),
-                table
-        );
+//        String url = String.format(GET_ALL_USERS_URL,
+//                configuration.getResultsAddress(),
+//                configuration.getResultsPort(),
+//                table
+//        );
+
+        String url = String.format(GET_ALL_USERS_URL, address, port, table);
 
         try {
             return Unirest.get(url).asString().getBody();
@@ -61,12 +68,13 @@ public class ResultsService {
     }
 
     public String getUser(String table, String user) {
-        String url = String.format(GET_USER_URL,
-                configuration.getResultsAddress(),
-                configuration.getResultsPort(),
-                table,
-                user
-        );
+//        String url = String.format(GET_USER_URL,
+//                configuration.getResultsAddress(),
+//                configuration.getResultsPort(),
+//                table,
+//                user
+//        );
+        String url = String.format(GET_USER_URL, address, port, table, user);
 
         try {
             return Unirest.get(url).asString().getBody();
@@ -78,10 +86,12 @@ public class ResultsService {
     }
 
     public String addConversation(MultipartFile csvFile, String tablename) {
-        String url = String.format(ADD_CONV_URL,
-                configuration.getResultsAddress(),
-                configuration.getResultsPort()
-        );
+//        String url = String.format(ADD_CONV_URL,
+//                configuration.getResultsAddress(),
+//                configuration.getResultsPort()
+//        );
+
+        String url = String.format(ADD_CONV_URL, address, port);
 
         try {
             File csvTemp = new File("temp.csv");
@@ -102,6 +112,6 @@ public class ResultsService {
             e.printStackTrace();
         }
 
-        throw new RuntimeException("addConversation: Error en la comunicacióbn con el servicio de resultados");
+        throw new RuntimeException("addConversation: Error en la comunicación con el servicio de resultados");
     }
 }

@@ -20,26 +20,33 @@ public class PooService {
     private static final String CLASSIFY_LOTR_URL = "http://%s:%s/clasificar_lotr?db_uri=%s&db_name=%s&cantidad_chats=%s";
 
     private MicroservicesConfiguration configuration;
+    private String address;
+    private int port;
 
     @Autowired
     public PooService(MicroservicesConfiguration configuration) {
         this.configuration = configuration;
+        this.address = configuration.dockerized() ? configuration.getPooAddressDocker() : configuration.getPooAddress();
+        this.port = configuration.getPooPort();
     }
 
     public String classifyArff(MultipartFile zipFile) {
-        String url = String.format(CLASSIFY_ARFF_URL, configuration.getPooAddress(), configuration.getPooPort());
+//        String url = String.format(CLASSIFY_ARFF_URL, configuration.getPooAddress(), configuration.getPooPort());
+        String url = String.format(CLASSIFY_ARFF_URL, address, port);
 
         return sendZipFileRequest(url, zipFile);
     }
 
     public String classifyTakeout(MultipartFile zipFile) {
-        String url = String.format(CLASSIFY_TAKEOUT_URL, configuration.getPooAddress(), configuration.getPooPort());
+//        String url = String.format(CLASSIFY_TAKEOUT_URL, configuration.getPooAddress(), configuration.getPooPort());
+        String url = String.format(CLASSIFY_TAKEOUT_URL, address, port);
 
         return sendZipFileRequest(url, zipFile);
     }
 
     public String classifyLotr(String dbUri, String dbName, int cantidadChats) {
-        String url = String.format(CLASSIFY_LOTR_URL, configuration.getPooAddress(), configuration.getPooPort(), dbUri, dbName, cantidadChats);
+//        String url = String.format(CLASSIFY_LOTR_URL, configuration.getPooAddress(), configuration.getPooPort(), dbUri, dbName, cantidadChats);
+        String url = String.format(CLASSIFY_LOTR_URL, address, port, dbUri, dbName, cantidadChats);
 
         Unirest.setTimeouts(20000 * cantidadChats, 60000 * cantidadChats);
 

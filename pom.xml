@@ -5,7 +5,7 @@
 
     <groupId>trabajogrado</groupId>
     <artifactId>broker</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>beta</version>
     <packaging>jar</packaging>
 
     <name>broker</name>
@@ -41,6 +41,20 @@
             <groupId>com.mashape.unirest</groupId>
             <artifactId>unirest-java</artifactId>
             <version>1.4.9</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/net.sf.opencsv/opencsv -->
+        <dependency>
+            <groupId>net.sf.opencsv</groupId>
+            <artifactId>opencsv</artifactId>
+            <version>2.3</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/com.google.guava/guava -->
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>26.0-jre</version>
         </dependency>
 
     </dependencies>

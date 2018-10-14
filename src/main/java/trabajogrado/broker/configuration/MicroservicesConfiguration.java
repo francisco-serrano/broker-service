@@ -1,6 +1,8 @@
 package trabajogrado.broker.configuration;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
@@ -13,11 +15,17 @@ public class MicroservicesConfiguration {
     @Value("${results.address}")
     private String resultsAddress;
 
+    @Value("${results.address.docker}")
+    private String resultsAddressDocker;
+
     @Value("${results.port}")
     private int resultsPort;
 
     @Value("${poo.address}")
     private String pooAddress;
+
+    @Value("${poo.address.docker}")
+    private String pooAddressDocker;
 
     @Value("${poo.port}")
     private int pooPort;
@@ -25,8 +33,14 @@ public class MicroservicesConfiguration {
     @Value("${nn.address}")
     private String nnAddress;
 
+    @Value("${nn.address.docker}")
+    private String nnAddressDocker;
+
     @Value("${nn.port}")
     private int nnPort;
+
+    @Autowired
+    private ApplicationArguments applicationArguments;
 
     public String getResultsAddress() {
         return resultsAddress;
@@ -50,5 +64,24 @@ public class MicroservicesConfiguration {
 
     public int getNnPort() {
         return nnPort;
+    }
+
+    public String getResultsAddressDocker() {
+        return resultsAddressDocker;
+    }
+
+    public String getNnAddressDocker() {
+        return nnAddressDocker;
+    }
+
+    public String getPooAddressDocker() {
+        return pooAddressDocker;
+    }
+
+    public boolean dockerized() {
+        if (applicationArguments.getSourceArgs().length == 0)
+            return false;
+
+        return applicationArguments.getSourceArgs()[0].equals("dockerized");
     }
 }
