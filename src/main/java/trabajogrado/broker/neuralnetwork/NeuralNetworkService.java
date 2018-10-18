@@ -21,7 +21,7 @@ import java.util.zip.ZipInputStream;
 @Service
 public class NeuralNetworkService {
 
-    private static String URL_CLASIFICAR_LOTE = "http://%s:%s/clasificar_csv/%s?cantidad_mensajes=%s";
+    private static String URL_CLASIFICAR_LOTE = "http://%s:%s/clasificar_csv/%s?cantidad_mensajes=%s&integrante=%s";
 
     private static String URL_GENERAR_CSV_ARFF = "http://%s:%s/obtener_arff_csv";
     private static String URL_GENERAR_CSV_TAKEOUT = "http://%s:%s/obtener_takeout_csv";
@@ -48,7 +48,7 @@ public class NeuralNetworkService {
     }
 
     // TODO: PROVISORIO -> Refactorización por duplicación de funcionalidad
-    public String clasificarCsv(MultipartFile zipFile, int cantidadMensajes, String tipoClasificador) {
+    public String clasificarCsv(MultipartFile zipFile, int cantidadMensajes, String tipoClasificador, String integrante) {
 
         File zipFileTemp = new File("/tmp/file.zip");
         try {
@@ -78,7 +78,7 @@ public class NeuralNetworkService {
                 .map(fields -> Joiner.on(',').join(fields) + '\n')
                 .collect(Collectors.joining());
 
-        return classifyCsv(csvGrande, cantidadMensajes, tipoClasificador);
+        return classifyCsv(csvGrande, cantidadMensajes, tipoClasificador, integrante);
     }
 
     // TODO: PROVISORIO -> Refactorización por duplicación de funcionalidad
@@ -124,7 +124,7 @@ public class NeuralNetworkService {
         return arffFileList;
     }
 
-    public String clasificarArff(MultipartFile zipFile, int cantidadMensajes, boolean mostrarTsv, String tipoClasificador) {
+    public String clasificarArff(MultipartFile zipFile, int cantidadMensajes, boolean mostrarTsv, String tipoClasificador, String integrante) {
         String urlConversionCsv = String.format(URL_GENERAR_CSV_ARFF, addressPoo, portPoo);
 
         String response = null;
@@ -148,14 +148,14 @@ public class NeuralNetworkService {
 
         assert response != null;
 
-        response = classifyCsv(response, cantidadMensajes, tipoClasificador);
+        response = classifyCsv(response, cantidadMensajes, tipoClasificador, integrante);
 
         assert response != null;
 
         return generateProfiles(response, mostrarTsv);
     }
 
-    public String clasificarTakeout(MultipartFile zipFile, int cantidadMensajes, boolean mostrarTsv, String tipoClasificador) {
+    public String clasificarTakeout(MultipartFile zipFile, int cantidadMensajes, boolean mostrarTsv, String tipoClasificador, String integrante) {
         String urlConversionCsv = String.format(URL_GENERAR_CSV_TAKEOUT, addressPoo, portPoo);
 
         String response = null;
@@ -178,7 +178,7 @@ public class NeuralNetworkService {
 
         assert response != null;
 
-        response = classifyCsv(response, cantidadMensajes, tipoClasificador);
+        response = classifyCsv(response, cantidadMensajes, tipoClasificador, integrante);
 
         assert response != null;
 
@@ -186,7 +186,7 @@ public class NeuralNetworkService {
     }
 
     public String clasificarLotr(
-            String dbUri, String dbName, int cantidadChats, int cantidadMensajes, boolean mostrarTsv, String tipoClasificador
+            String dbUri, String dbName, int cantidadChats, int cantidadMensajes, boolean mostrarTsv, String tipoClasificador, String integrante
     ) {
         String urlConversionCsv = String.format(URL_GENERAR_CSV_LOTR, addressPoo, portPoo, dbUri, dbName, cantidadChats);
 
@@ -203,15 +203,17 @@ public class NeuralNetworkService {
 
         assert response != null;
 
-        response = classifyCsv(response, cantidadMensajes, tipoClasificador);
+        response = classifyCsv(response, cantidadMensajes, tipoClasificador, integrante);
 
         assert response != null;
 
         return generateProfiles(response, mostrarTsv);
     }
 
-    private String classifyCsv(String csvContent, int cantidadMensajes, String tipoClasificador) {
-        String urlClasificacion = String.format(URL_CLASIFICAR_LOTE, addressNN, portNN, tipoClasificador, cantidadMensajes);
+    private String classifyCsv(String csvContent, int cantidadMensajes, String tipoClasificador, String integrante) {
+        String urlClasificacion = String.format(URL_CLASIFICAR_LOTE,
+                addressNN, portNN, tipoClasificador, cantidadMensajes, integrante
+        ).replace(' ', '+');
 
         Unirest.setTimeouts(1000 * cantidadMensajes, 2000 * cantidadMensajes);
 

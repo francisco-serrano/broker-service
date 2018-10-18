@@ -20,30 +20,33 @@ public class NeuralNetworkController {
     @PostMapping(value = "/neuralnetwork/clasificar_csv/{tipoClasificador}")
     public String clasificarCsv(
             @RequestBody MultipartFile zipFile,
+            @PathVariable("tipoClasificador") String tipoClasificador,
             @RequestParam("cantidad_mensajes") int cantidadmensajes,
-            @PathVariable("tipoClasificador") String tipoClasificador
+            @RequestParam(value = "integrante", required = false, defaultValue = "") String integrante
     ) {
-        return neuralNetworkService.clasificarCsv(zipFile, cantidadmensajes, tipoClasificador);
+        return neuralNetworkService.clasificarCsv(zipFile, cantidadmensajes, tipoClasificador, integrante);
     }
 
     @PostMapping(value = "/neuralnetwork/clasificar_arff/{tipoClasificador}")
     public String clasificarArff(
             @RequestBody MultipartFile zipFile,
-            @RequestParam("cantidad_mensajes") int cantidadMensajes,
             @RequestParam(value = "mostrar_tsv", required = false) boolean mostrarTsv,
-            @PathVariable("tipoClasificador") String tipoClasificador
+            @PathVariable("tipoClasificador") String tipoClasificador,
+            @RequestParam("cantidad_mensajes") int cantidadMensajes,
+            @RequestParam(value = "integrante", required = false, defaultValue = "") String integrante
     ) {
-        return neuralNetworkService.clasificarArff(zipFile, cantidadMensajes, mostrarTsv, tipoClasificador);
+        return neuralNetworkService.clasificarArff(zipFile, cantidadMensajes, mostrarTsv, tipoClasificador, integrante);
     }
 
     @PostMapping(value = "/neuralnetwork/clasificar_takeout/{tipoClasificador}")
     public String clasificarTakeout(
             @RequestBody MultipartFile zipFile,
-            @RequestParam("cantidad_mensajes") int cantidadMensajes,
             @RequestParam(value = "mostrar_tsv", required = false) boolean mostrarTsv,
-            @PathVariable("tipoClasificador") String tipoClasificador
+            @PathVariable("tipoClasificador") String tipoClasificador,
+            @RequestParam("cantidad_mensajes") int cantidadMensajes,
+            @RequestParam(value = "integrante", required = false, defaultValue = "") String integrante
     ) {
-        return neuralNetworkService.clasificarTakeout(zipFile, cantidadMensajes, mostrarTsv, tipoClasificador);
+        return neuralNetworkService.clasificarTakeout(zipFile, cantidadMensajes, mostrarTsv, tipoClasificador, integrante);
     }
 
     @GetMapping(value = "/neuralnetwork/clasificar_lotr/{tipoClasificador}")
@@ -53,8 +56,9 @@ public class NeuralNetworkController {
             @RequestParam("cantidad_chats") int cantidadChats,
             @RequestParam("cantidad_mensajes") int cantidadMensajes,
             @RequestParam(value = "mostrar_tsv", required = false) boolean mostrarTsv,
+            @RequestParam(value = "integrante", required = false, defaultValue = "") String integrante,
             @PathVariable("tipoClasificador") String tipoClasificador
     ) {
-        return neuralNetworkService.clasificarLotr(dbUri, dbName, cantidadChats, cantidadMensajes, mostrarTsv, tipoClasificador);
+        return neuralNetworkService.clasificarLotr(dbUri, dbName, cantidadChats, cantidadMensajes, mostrarTsv, tipoClasificador, integrante);
     }
 }
