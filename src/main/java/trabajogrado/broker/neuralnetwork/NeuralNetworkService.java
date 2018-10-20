@@ -48,7 +48,7 @@ public class NeuralNetworkService {
     }
 
     // TODO: PROVISORIO -> Refactorización por duplicación de funcionalidad
-    public String clasificarCsv(MultipartFile zipFile, int cantidadMensajes, String tipoClasificador, String integrante) {
+    public String clasificarCsv(MultipartFile zipFile, int cantidadMensajes, boolean mostrarTsv, String tipoClasificador, String integrante) {
 
         File zipFileTemp = new File("/tmp/file.zip");
         try {
@@ -78,7 +78,11 @@ public class NeuralNetworkService {
                 .map(fields -> Joiner.on(',').join(fields) + '\n')
                 .collect(Collectors.joining());
 
-        return classifyCsv(csvGrande, cantidadMensajes, tipoClasificador, integrante);
+        String response = classifyCsv(csvGrande, cantidadMensajes, tipoClasificador, integrante);
+
+        assert response != null;
+
+        return generateProfiles(response, mostrarTsv);
     }
 
     // TODO: PROVISORIO -> Refactorización por duplicación de funcionalidad

@@ -20,11 +20,12 @@ public class NeuralNetworkController {
     @PostMapping(value = "/neuralnetwork/clasificar_csv/{tipoClasificador}")
     public String clasificarCsv(
             @RequestBody MultipartFile zipFile,
+            @RequestParam(value = "mostrar_tsv", required = false) boolean mostrarTsv,
             @PathVariable("tipoClasificador") String tipoClasificador,
             @RequestParam("cantidad_mensajes") int cantidadmensajes,
             @RequestParam(value = "integrante", required = false, defaultValue = "") String integrante
     ) {
-        return neuralNetworkService.clasificarCsv(zipFile, cantidadmensajes, tipoClasificador, integrante);
+        return neuralNetworkService.clasificarCsv(zipFile, cantidadmensajes, mostrarTsv, tipoClasificador, integrante);
     }
 
     @PostMapping(value = "/neuralnetwork/clasificar_arff/{tipoClasificador}")
