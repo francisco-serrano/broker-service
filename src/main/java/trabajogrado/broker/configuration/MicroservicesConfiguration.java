@@ -39,6 +39,15 @@ public class MicroservicesConfiguration {
     @Value("${nn.port}")
     private int nnPort;
 
+    @Value("${roles.address}")
+    private String rolesAddress;
+
+    @Value("${roles.address.docker}")
+    private String rolesAddressDocker;
+
+    @Value("${roles.port}")
+    private int rolesPort;
+
     @Autowired
     private ApplicationArguments applicationArguments;
 
@@ -76,6 +85,18 @@ public class MicroservicesConfiguration {
 
     public String getPooAddressDocker() {
         return pooAddressDocker;
+    }
+
+    public String getRolesAddress() {
+        return rolesAddress;
+    }
+
+    public String getRolesAddressDocker() {
+        return rolesAddressDocker;
+    }
+
+    public int getRolesPort() {
+        return rolesPort;
     }
 
     public boolean dockerized() {

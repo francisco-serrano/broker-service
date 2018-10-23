@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import trabajogrado.broker.configuration.MicroservicesConfiguration;
+import trabajogrado.broker.roles.RolesService;
 
 import java.io.*;
 import java.time.LocalDateTime;
@@ -31,6 +32,7 @@ public class NeuralNetworkService {
     private static String URL_GENERAR_PERFILES_TSV = "http://%s:%s/generar_perfiles_tsv";
 
     private MicroservicesConfiguration configuration;
+    private RolesService rolesService;
 
     private String addressNN;
     private int portNN;
@@ -39,8 +41,10 @@ public class NeuralNetworkService {
 
 
     @Autowired
-    public NeuralNetworkService(MicroservicesConfiguration configuration) {
+    public NeuralNetworkService(MicroservicesConfiguration configuration, RolesService rolesService) {
         this.configuration = configuration;
+        this.rolesService = rolesService;
+
         this.addressNN = configuration.dockerized() ? configuration.getNnAddressDocker() : configuration.getNnAddress();
         this.portNN = configuration.getNnPort();
         this.addressPoo = configuration.dockerized() ? configuration.getPooAddressDocker() : configuration.getPooAddress();
@@ -156,7 +160,9 @@ public class NeuralNetworkService {
 
         assert response != null;
 
-        return generateProfiles(response, mostrarTsv);
+        response = generateProfiles(response, mostrarTsv);
+
+        return mostrarTsv ? response : rolesService.getRolesFromJson(response);
     }
 
     public String clasificarTakeout(MultipartFile zipFile, int cantidadMensajes, boolean mostrarTsv, String tipoClasificador, String integrante) {
@@ -186,7 +192,9 @@ public class NeuralNetworkService {
 
         assert response != null;
 
-        return generateProfiles(response, mostrarTsv);
+        response = generateProfiles(response, mostrarTsv);
+
+        return mostrarTsv ? response : rolesService.getRolesFromJson(response);
     }
 
     public String clasificarLotr(
@@ -211,7 +219,9 @@ public class NeuralNetworkService {
 
         assert response != null;
 
-        return generateProfiles(response, mostrarTsv);
+        response = generateProfiles(response, mostrarTsv);
+
+        return mostrarTsv ? response : rolesService.getRolesFromJson(response);
     }
 
     private String classifyCsv(String csvContent, int cantidadMensajes, String tipoClasificador, String integrante) {
