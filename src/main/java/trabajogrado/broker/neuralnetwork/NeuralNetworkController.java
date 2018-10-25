@@ -6,7 +6,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @CrossOrigin(origins = {
-        "http://localhost:4200"
+        "http://localhost:4200",
+        "http://host.docker.internal:4200"
 })
 public class NeuralNetworkController {
 

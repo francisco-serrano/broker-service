@@ -32,8 +32,6 @@ public class RolesService {
     }
 
     public String getRolesFromJson(String jsonClassification) {
-
-
         List<String> listaConductas = new ArrayList<>();
         JsonArray jsonArray = new JsonParser().parse(jsonClassification).getAsJsonArray();
         for (int i = 0; i < jsonArray.size(); i++) {
